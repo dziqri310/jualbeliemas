@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jual Beli Emas</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif}
+body{background:#0b0b0b;color:#fff;overflow-x:hidden}
+
+.fade-up{opacity:0;transform:translateY(20px);animation:fadeUp 0.8s forwards}
+.fade-delay-1{animation-delay:0.2s}
+.fade-delay-2{animation-delay:0.4s}
+.fade-delay-3{animation-delay:0.6s}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+.gold-text{color:gold;text-shadow:0 0 10px rgba(255,215,0,0.5)}
+
+header{display:flex;justify-content:space-between;align-items:center;padding:15px 30px;background:#111;position:fixed;width:100%;z-index:10}
+header h1{color:gold}
+
+nav{display:flex;align-items:center;gap:20px}
+.nav-left,.nav-middle,.nav-right{display:flex;gap:15px}
+
+nav a{text-decoration:none;color:#fff;cursor:pointer;position:relative;transition:0.3s}
+nav a::after{content:"";position:absolute;width:0%;height:2px;bottom:-5px;left:0;background:gold;transition:0.3s}
+nav a:hover{color:gold}
+nav a:hover::after{width:100%}
+
+.nav-divider{width:1px;height:20px;background:#333}
+
+.loader{position:fixed;top:0;left:0;width:100%;height:100%;background:#0b0b0b;display:flex;justify-content:center;align-items:center;z-index:999;opacity:0;pointer-events:none;transition:0.3s}
+.loader.active{opacity:1;pointer-events:all}
+.spinner{width:50px;height:50px;border:5px solid #333;border-top:5px solid gold;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+
+section{display:none;padding:100px 40px 40px;opacity:0;transform:translateY(20px);transition:0.5s}
+.active{display:block;opacity:1;transform:translateY(0)}
+
+.parallax{position:relative;height:100vh;overflow:hidden}
+.layer{position:absolute;width:120%;height:120%;top:0;left:0;background-position:center;background-size:cover;pointer-events:none;transition:transform 0.1s linear}
+.layer.bg{background:url('https://images.unsplash.com/photo-1610375461246-83df859d849d') center/cover no-repeat;z-index:-3}
+.layer.gold{background:url('https://png.pngtree.com/png-vector/20220729/ourmid/pngtree-gold-glitter-texture-background-png-image_6086117.png') repeat;opacity:0.15;z-index:-2}
+.layer.particles{background:url('https://www.transparenttextures.com/patterns/stardust.png');opacity:0.2;z-index:-1}
+
+.hero{position:relative;text-align:center;top:50%;transform:translateY(-50%);z-index:2}
+.hero h2{font-size:40px;color:gold}
+.hero p{margin-top:10px}
+
+.btn{padding:10px 20px;margin-top:20px;border:none;background:gold;color:#000;cursor:pointer;border-radius:5px;transition:0.2s}
+.btn:hover{transform:translateY(-3px);box-shadow:0 5px 15px rgba(255,215,0,0.3)}
+.btn:active{transform:scale(0.92)}
+
+.delete-btn{padding:5px 10px;border:none;border-radius:5px;background:gold;color:#000;cursor:pointer;transition:0.2s}
+.delete-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(255,215,0,0.3)}
+.delete-btn:active{transform:scale(0.9)}
+
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.card{background:#1a1a1a;padding:20px;border-radius:10px;text-align:center;transition:0.3s}
+.card:hover{transform:translateY(-10px) scale(1.02);box-shadow:0 10px 25px rgba(255,215,0,0.2)}
+.card img{width:100%;border-radius:10px}
+
+.qty-btn{margin:0 5px;padding:3px 8px;border:none;border-radius:4px;background:gold;color:#000;cursor:pointer}
+
+input{width:100%;padding:10px;margin:10px 0;border:none;border-radius:5px;background:#111;color:#fff}
+input:focus{outline:none;box-shadow:0 0 10px rgba(255,215,0,0.4)}
+
+.form-box{max-width:400px;margin:80px auto;background:#1a1a1a;padding:30px;border-radius:12px;box-shadow:0 10px 30px rgba(255,215,0,0.15);text-align:center;overflow:hidden}
+
+/* animasi auth */
+.auth-form{
+  transition:all 0.4s ease;
+  opacity:1;
+  transform:translateX(0);
+}
+
+.auth-hide{
+  opacity:0;
+  transform:translateX(-50px);
+  pointer-events:none;
+  position:absolute;
+  width:100%;
+}
+
+.auth-show{
+  opacity:1;
+  transform:translateX(0);
+  position:relative;
+}
+
+.auth-enter{
+  animation:slideIn 0.4s ease;
+}
+
+@keyframes slideIn{
+  from{opacity:0;transform:translateX(50px)}
+  to{opacity:1;transform:translateX(0)}
+}
+
+.switch-text{margin-top:10px;font-size:14px;color:#ccc;cursor:pointer}
+.switch-text span{color:gold}
+
+.order-card{background:#1a1a1a;padding:20px;border-radius:10px;margin-bottom:15px;box-shadow:0 5px 15px rgba(255,215,0,0.1)}
+
+footer{text-align:center;padding:20px;background:#111;margin-top:40px}
+</style>
+</head>
+
+<body>
+
+<div class="loader" id="loader"><div class="spinner"></div></div>
+
+<header>
+  <h1 class="gold-text">GoldShop</h1>
+  <nav>
+    <div class="nav-left">
+      <a onclick="showPage('home')">Home</a>
+      <a onclick="showPage('produk')">Produk</a>
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <div class="nav-middle">
+      <a onclick="showPage('cart')">Keranjang</a>
+      <a onclick="showPage('orders')">Pesanan</a>
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <div class="nav-right">
+      <a onclick="showPage('auth')">Login</a>
+      <a onclick="showPage('profile')">Profile</a>
+    </div>
+  </nav>
+</header>
+
+<section id="home" class="active">
+  <div class="parallax" id="parallaxArea">
+    <div class="layer bg" id="bg"></div>
+    <div class="layer gold" id="gold"></div>
+    <div class="layer particles" id="particles"></div>
+
+    <div class="hero">
+      <h2 class="fade-up">Jual Beli Emas Terpercaya</h2>
+      <p class="fade-up fade-delay-1">Beli & jual emas dengan aman dan cepat</p>
+      <button class="btn fade-up fade-delay-2" onclick="showPage('produk')">Lihat Produk</button>
+    </div>
+  </div>
+</section>
+
+<section id="produk">
+  <h2 class="gold-text">Produk Emas</h2>
+  <div class="products">
+    <div class="card fade-up"><img src="https://via.placeholder.com/200"><h3>Emas 1 Gram</h3><p>Rp 1.200.000</p><button class="btn" onclick="addToCart('Emas 1 Gram',1200000)">Beli</button></div>
+    <div class="card fade-up fade-delay-1"><img src="https://via.placeholder.com/200"><h3>Emas 5 Gram</h3><p>Rp 6.000.000</p><button class="btn" onclick="addToCart('Emas 5 Gram',6000000)">Beli</button></div>
+    <div class="card fade-up fade-delay-2"><img src="https://via.placeholder.com/200"><h3>Emas 10 Gram</h3><p>Rp 12.000.000</p><button class="btn" onclick="addToCart('Emas 10 Gram',12000000)">Beli</button></div>
+  </div>
+</section>
+
+<section id="cart">
+  <h2 class="gold-text">Keranjang</h2>
+  <div id="cartItems"></div>
+  <h3 id="total"></h3>
+  <button class="btn" onclick="checkout()">Checkout</button>
+</section>
+
+<section id="orders">
+  <h2 class="gold-text">Pesanan Saya</h2>
+  <div id="orderList"></div>
+</section>
+
+<section id="auth">
+  <div class="form-box fade-up">
+
+    <div id="loginForm" class="auth-form auth-show">
+      <h2 class="gold-text">Login</h2>
+      <input type="text" placeholder="Username">
+      <input type="password" placeholder="Password">
+      <button class="btn">Masuk</button>
+      <p class="switch-text" onclick="toggleAuth()">Belum punya akun? <span>Daftar</span></p>
+    </div>
+
+    <div id="registerForm" class="auth-form auth-hide">
+      <h2 class="gold-text">Daftar Akun</h2>
+      <input type="text" placeholder="Nama">
+      <input type="email" placeholder="Email">
+      <input type="password" placeholder="Password">
+      <button class="btn">Daftar</button>
+      <p class="switch-text" onclick="toggleAuth()">Sudah punya akun? <span>Login</span></p>
+    </div>
+
+  </div>
+</section>
+<section id="profile">
+  <h2 class="gold-text">Profil Saya</h2>
+
+  <div style="max-width:500px;margin:40px auto;background:#1a1a1a;padding:30px;border-radius:15px;box-shadow:0 10px 25px rgba(255,215,0,0.1);text-align:center">
+
+    <img src="https://via.placeholder.com/100" 
+         style="border-radius:50%;margin-bottom:15px;border:3px solid gold">
+
+    <h3 style="margin-bottom:5px">User Gold</h3>
+    <p style="color:#aaa;margin-bottom:20px">user@email.com</p>
+
+    <div style="text-align:left;margin-top:20px">
+      <p><b>Total Pesanan:</b> <span id="totalOrderProfile">0</span></p>
+      <p><b>Status:</b> Member</p>
+    </div>
+
+    <button class="btn" style="margin-top:20px;width:100%">
+      Edit Profil
+    </button>
+
+  </div>
+</section>
+<footer>
+  <p>© 2026 GoldShop</p>
+</footer>
+
+<script>
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let orders = JSON.parse(localStorage.getItem('orders')) || [];
+
+function addToCart(name,price){
+  let found = cart.find(i=>i.name===name);
+  if(found){found.qty++}else{cart.push({name,price,qty:1})}
+  localStorage.setItem('cart', JSON.stringify(cart));
+  alert('Ditambahkan ke keranjang');
+}
+
+function renderCart(){
+  let container=document.getElementById('cartItems');
+  let total=0;
+  container.innerHTML='';
+
+  cart.forEach((item,index)=>{
+    total+=item.price*item.qty;
+    container.innerHTML+=`<p>${item.name} - Rp ${item.price.toLocaleString()} 
+    <button class='qty-btn' onclick="decreaseQty(${index})">-</button>
+    ${item.qty}
+    <button class='qty-btn' onclick="increaseQty(${index})">+</button>
+    <button class='delete-btn' onclick="removeItem(${index})">Hapus</button></p>`;
+  });
+
+  document.getElementById('total').innerText='Total: Rp '+total.toLocaleString();
+  localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+function renderOrders(){
+  let container=document.getElementById('orderList');
+  container.innerHTML='';
+
+  if(orders.length===0){
+    container.innerHTML="<p>Belum ada pesanan</p>";
+    return;
+  }
+
+  orders.forEach(order=>{
+    let items = order.items.map(i=>`${i.name} x${i.qty}`).join("<br>");
+    container.innerHTML+=`
+      <div class="order-card">
+        <p><b>Tanggal:</b> ${order.date}</p>
+        <p>${items}</p>
+        <p><b>Total:</b> Rp ${order.total.toLocaleString()}</p>
+      </div>
+    `;
+  });
+}
+
+function increaseQty(i){cart[i].qty++;renderCart()}
+function decreaseQty(i){
+  if(cart[i].qty>1){cart[i].qty--}else{cart.splice(i,1)}
+  renderCart()
+}
+
+function removeItem(index){
+  cart.splice(index,1);
+  renderCart();
+}
+
+function checkout(){
+  if(cart.length===0) return alert('Keranjang kosong');
+
+  let total = cart.reduce((a,b)=>a+(b.price*b.qty),0);
+
+  orders.push({
+    items:[...cart],
+    total:total,
+    date:new Date().toLocaleString()
+  });
+
+  localStorage.setItem('orders', JSON.stringify(orders));
+
+  alert('Checkout berhasil!');
+  cart=[];
+  localStorage.removeItem('cart');
+  renderCart();
+}
+
+function showPage(page){
+  const loader=document.getElementById('loader');
+  const sections=document.querySelectorAll('section');
+  loader.classList.add('active');
+  setTimeout(()=>{
+    sections.forEach(sec=>sec.classList.remove('active'));
+    document.getElementById(page).classList.add('active');
+    loader.classList.remove('active');
+    if(page==='cart') renderCart();
+    if(page==='orders') renderOrders();
+  },600);
+}
+
+function toggleAuth(){
+  let login=document.getElementById('loginForm');
+  let reg=document.getElementById('registerForm');
+
+  if(login.classList.contains("auth-show")){
+    login.classList.remove("auth-show");
+    login.classList.add("auth-hide");
+
+    reg.classList.remove("auth-hide");
+    reg.classList.add("auth-show","auth-enter");
+  }else{
+    reg.classList.remove("auth-show");
+    reg.classList.add("auth-hide");
+
+    login.classList.remove("auth-hide");
+    login.classList.add("auth-show","auth-enter");
+  }
+}
+
+window.addEventListener('scroll', ()=>{
+  let scroll = window.scrollY;
+  document.getElementById('bg').style.transform = `translateY(${scroll*0.2}px)`;
+  document.getElementById('gold').style.transform = `translateY(${scroll*0.4}px)`;
+  document.getElementById('particles').style.transform = `translateY(${scroll*0.6}px)`;
+});
+
+const area=document.getElementById('parallaxArea');
+area.addEventListener('mousemove',(e)=>{
+  const x=(e.clientX/window.innerWidth-0.5);
+  const y=(e.clientY/window.innerHeight-0.5);
+  document.getElementById('bg').style.transform=`translate(${x*20}px,${y*20}px)`;
+  document.getElementById('gold').style.transform=`translate(${x*40}px,${y*40}px)`;
+  document.getElementById('particles').style.transform=`translate(${x*60}px,${y*60}px)`;
+});
+</script>
+
+</body>
+</html>
